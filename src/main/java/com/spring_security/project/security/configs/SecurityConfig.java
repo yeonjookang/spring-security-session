@@ -1,10 +1,12 @@
 package com.spring_security.project.security.configs;
 
 import jakarta.websocket.Encoder;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -30,13 +32,13 @@ public class SecurityConfig {
         UserDetails admin = User.builder()
                 .username("admin")
                 .password("{noop}1111")
-                .roles("ADMIN")
+                .roles("ADMIN,MANAGER,USER")
                 .build();
 
         UserDetails manager = User.builder()
                 .username("manager")
                 .password("{noop}1111")
-                .roles("MANAGER")
+                .roles("MANAGER,USER")
                 .build();
 
         return new InMemoryUserDetailsManager(user,manager,admin);
@@ -45,6 +47,12 @@ public class SecurityConfig {
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    //정적 파일들은 보안 필터를 거치지 않고 통과되게 하기(css,js,images)
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Bean

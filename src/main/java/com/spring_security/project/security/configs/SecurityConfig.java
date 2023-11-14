@@ -1,47 +1,34 @@
 package com.spring_security.project.security.configs;
 
+import com.spring_security.project.service.UserService;
 import jakarta.websocket.Encoder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final UserDetailsService userDetailsService;
 
-    @Bean
-    public static UserDetailsManager users(){
-        String password = passwordEncoder().encode("1111");
-
-        UserDetails user = User.builder()
-                .username("user")
-                .password("{noop}1111")
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password("{noop}1111")
-                .roles("ADMIN,MANAGER,USER")
-                .build();
-
-        UserDetails manager = User.builder()
-                .username("manager")
-                .password("{noop}1111")
-                .roles("MANAGER,USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user,manager,admin);
+    public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService);
+        return auth.build();
     }
 
     @Bean
